@@ -68,10 +68,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         info!(
             "Got message : {:?} with offset {}",
             delivery
-                .message
+                .message()
                 .data()
                 .map(|data| String::from_utf8(data.to_vec())),
-            delivery.offset
+            delivery.offset()
         );
     }
 

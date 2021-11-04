@@ -216,7 +216,24 @@ impl MessageHandler for ConsumerMessageHandler {
 }
 #[derive(Debug)]
 pub struct Delivery {
-    pub subscription_id: u8,
-    pub message: Message,
-    pub offset: u64,
+    subscription_id: u8,
+    message: Message,
+    offset: u64,
+}
+
+impl Delivery {
+    /// Get a reference to the delivery's subscription id.
+    pub fn subscription_id(&self) -> u8 {
+        self.subscription_id
+    }
+
+    /// Get a reference to the delivery's message.
+    pub fn message(&self) -> &Message {
+        &self.message
+    }
+
+    /// Get a reference to the delivery's offset.
+    pub fn offset(&self) -> u64 {
+        self.offset
+    }
 }

@@ -39,7 +39,7 @@ async fn consumer_test() {
 
     for _ in 0..message_count {
         let delivery = consumer.next().await.unwrap();
-        let data = String::from_utf8(delivery.unwrap().message.data().unwrap().to_vec()).unwrap();
+        let data = String::from_utf8(delivery.unwrap().message().data().unwrap().to_vec()).unwrap();
         assert!(data.contains("message"));
     }
 
