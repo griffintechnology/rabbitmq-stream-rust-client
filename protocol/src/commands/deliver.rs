@@ -21,7 +21,7 @@ pub struct DeliverCommand {
     num_entries: u16,
     timestamp: u64,
     epoch: u64,
-    chunk_first_offset: u64,
+    pub chunk_first_offset: u64,
     chunk_crc: i32,
     trailer_length: u32,
     reserved: u32,

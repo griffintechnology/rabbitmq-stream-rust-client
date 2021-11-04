@@ -50,11 +50,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for _ in 0..message_count {
         let delivery = consumer.next().await.unwrap()?;
         info!(
-            "Got message : {:?}",
+            "Got message : {:?} with offset {}",
             delivery
                 .message
                 .data()
-                .map(|data| String::from_utf8(data.to_vec()))
+                .map(|data| String::from_utf8(data.to_vec())),
+            delivery.offset
         );
     }
 
