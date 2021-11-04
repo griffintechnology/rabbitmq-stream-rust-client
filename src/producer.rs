@@ -1,19 +1,21 @@
 use std::{
     collections::HashMap,
     sync::{
-        atomic::{AtomicBool, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering},
         Arc,
     },
+    time::Duration,
 };
 
 use futures::{future::BoxFuture, FutureExt};
 use rabbitmq_stream_protocol::{message::Message, ResponseCode, ResponseKind};
 use std::future::Future;
 use tokio::sync::{
+    mpsc,
     oneshot::{channel, Receiver, Sender},
     Mutex,
 };
-use tracing::trace;
+use tracing::{debug, trace};
 
 use crate::{client::MessageHandler, ClientOptions, RabbitMQStreamResult};
 use crate::{
@@ -28,9 +30,11 @@ pub struct ProducerInternal {
     client: Client,
     stream: String,
     producer_id: u8,
+    batch_size: usize,
     publish_sequence: Arc<AtomicU64>,
     waiting_confirmations: WaiterMap,
     closed: Arc<AtomicBool>,
+    accumulator: MessageAccumulator,
 }
 
 /// API for publising messages to RabbitMQ stream
@@ -41,6 +45,8 @@ pub struct Producer(Arc<ProducerInternal>);
 pub struct ProducerBuilder {
     pub(crate) environment: Environment,
     pub(crate) name: Option<String>,
+    pub batch_size: usize,
+    pub batch_publishing_delay: Duration,
 }
 
 impl ProducerBuilder {
@@ -90,13 +96,19 @@ impl ProducerBuilder {
         if response.is_ok() {
             let producer = ProducerInternal {
                 producer_id,
+                batch_size: self.batch_size,
                 stream: stream.to_string(),
                 client,
                 publish_sequence,
                 waiting_confirmations,
                 closed: Arc::new(AtomicBool::new(false)),
+                accumulator: MessageAccumulator::new(self.batch_size),
             };
-            Ok(Producer(Arc::new(producer)))
+
+            let producer = Producer(Arc::new(producer));
+            schedule_batch_send(producer.clone(), self.batch_publishing_delay);
+
+            Ok(producer)
         } else {
             Err(ProducerCreateError::Create {
                 stream: stream.to_owned(),
@@ -105,10 +117,68 @@ impl ProducerBuilder {
         }
     }
 
+    pub fn batch_size(mut self, batch_size: usize) -> Self {
+        self.batch_size = batch_size;
+        self
+    }
+
+    pub fn batch_delay(mut self, delay: Duration) -> Self {
+        self.batch_publishing_delay = delay;
+        self
+    }
     pub fn name(mut self, name: &str) -> Self {
         self.name = Some(name.to_owned());
         self
     }
+}
+
+pub struct MessageAccumulator {
+    sender: mpsc::Sender<Message>,
+    receiver: Mutex<mpsc::Receiver<Message>>,
+    capacity: usize,
+    message_count: AtomicUsize,
+}
+
+impl MessageAccumulator {
+    pub fn new(batch_size: usize) -> Self {
+        let (sender, receiver) = mpsc::channel(batch_size);
+        Self {
+            sender,
+            receiver: Mutex::new(receiver),
+            capacity: batch_size,
+            message_count: AtomicUsize::new(0),
+        }
+    }
+
+    pub async fn add(&self, message: Message) -> RabbitMQStreamResult<bool> {
+        self.sender.send(message).await.unwrap();
+
+        let val = self.message_count.fetch_add(1, Ordering::Relaxed);
+
+        Ok(val + 1 == self.capacity)
+    }
+    pub async fn get(&self) -> RabbitMQStreamResult<Option<Message>> {
+        let mut receiver = self.receiver.lock().await;
+        let msg = receiver.try_recv().ok();
+
+        if msg.is_some() {
+            self.message_count.fetch_sub(1, Ordering::Relaxed);
+        }
+        Ok(msg)
+    }
+}
+
+fn schedule_batch_send(producer: Producer, delay: Duration) {
+    tokio::task::spawn(async move {
+        let mut interval = tokio::time::interval(delay);
+
+        debug!("Starting batch send interval every {:?}", delay);
+        loop {
+            interval.tick().await;
+
+            producer.batch_send().await.unwrap();
+        }
+    });
 }
 
 impl Producer {
@@ -120,6 +190,31 @@ impl Producer {
             .map(|_| publishing_id)
     }
 
+    async fn batch_send(&self) -> Result<(), ProducerPublishError> {
+        let mut count = 0;
+        let mut messages = Vec::with_capacity(self.0.batch_size);
+
+        while count != self.0.batch_size {
+            count += 1;
+            match self.0.accumulator.get().await.unwrap() {
+                Some(message) => {
+                    messages.push(message);
+                }
+                _ => break,
+            }
+        }
+
+        if !messages.is_empty() {
+            debug!("Sending batch of {} messages", messages.len());
+            self.0
+                .client
+                .publish(self.0.producer_id, messages)
+                .await
+                .unwrap();
+        }
+
+        Ok(())
+    }
     pub async fn send_with_callback<Fut>(
         &self,
         message: Message,
@@ -156,7 +251,10 @@ impl Producer {
         let mut waiting_confirmation = self.0.waiting_confirmations.lock().await;
         waiting_confirmation.insert(publishing_id, waiter);
         drop(waiting_confirmation);
-        self.0.client.publish(self.0.producer_id, message).await?;
+
+        if self.0.accumulator.add(message).await? {
+            self.batch_send().await?;
+        }
 
         Ok((publishing_id, rx))
     }

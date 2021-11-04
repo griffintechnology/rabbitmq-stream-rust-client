@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::types::OffsetSpecification;
 
 use crate::{
@@ -36,6 +38,8 @@ impl Environment {
         ProducerBuilder {
             environment: self.clone(),
             name: None,
+            batch_size: 100,
+            batch_publishing_delay: Duration::from_millis(100),
         }
     }
 
