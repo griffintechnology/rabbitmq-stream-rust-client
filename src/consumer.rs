@@ -185,11 +185,12 @@ impl MessageHandler for ConsumerMessageHandler {
         match item {
             Some(Ok(response)) => {
                 if let ResponseKind::Deliver(delivery) = response.kind() {
-                    for message in delivery.messages {
+                    for (i, message) in delivery.messages.into_iter().enumerate() {
                         let _ = self
                             .0
                             .sender
                             .send(Ok(Delivery {
+                                offset: delivery.chunk_first_offset + i as u64,
                                 subscription_id: self.0.subscription_id,
                                 message,
                             }))
@@ -214,5 +215,6 @@ impl MessageHandler for ConsumerMessageHandler {
 #[derive(Debug)]
 pub struct Delivery {
     pub subscription_id: u8,
+    pub offset: u64,
     pub message: Message,
 }
