@@ -11,7 +11,7 @@ use crate::{
 /// Main access point to a node
 #[derive(Clone)]
 pub struct Environment {
-    pub(crate) options: EnvironmentOptions,
+    pub options: EnvironmentOptions,
 }
 
 impl Environment {
@@ -46,7 +46,7 @@ impl Environment {
             offset_specification: OffsetSpecification::Next,
         }
     }
-    pub(crate) async fn create_client(&self) -> RabbitMQStreamResult<Client> {
+    pub async fn create_client(&self) -> RabbitMQStreamResult<Client> {
         Client::connect(self.options.client_options.clone()).await
     }
 
@@ -99,7 +99,7 @@ impl EnvironmentBuilder {
 }
 #[derive(Clone)]
 pub struct EnvironmentOptions {
-    pub(crate) client_options: ClientOptions,
+    pub client_options: ClientOptions,
 }
 
 impl Default for EnvironmentOptions {

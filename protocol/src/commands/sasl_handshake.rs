@@ -53,8 +53,8 @@ impl Command for SaslHandshakeCommand {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct SaslHandshakeResponse {
-    pub(crate) correlation_id: u32,
-    pub(crate) code: ResponseCode,
+    pub correlation_id: u32,
+    pub code: ResponseCode,
     pub mechanisms: Vec<String>,
 }
 

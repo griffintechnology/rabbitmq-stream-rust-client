@@ -65,7 +65,7 @@ impl Command for MetadataCommand {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct MetadataResponse {
-    pub(crate) correlation_id: u32,
+    pub correlation_id: u32,
     pub brokers: Vec<Broker>,
     pub stream_metadata: Vec<StreamMetadata>,
 }

@@ -64,8 +64,8 @@ impl Command for CreditCommand {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct CreditResponse {
-    pub(crate) code: ResponseCode,
-    pub(crate) subscription_id: u8,
+    pub code: ResponseCode,
+    pub subscription_id: u8,
 }
 
 impl Decoder for CreditResponse {

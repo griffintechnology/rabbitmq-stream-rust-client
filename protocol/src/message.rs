@@ -8,8 +8,8 @@ use crate::{
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Message {
-    pub(crate) publishing_id: Option<u64>,
-    pub(crate) message: AmpqMessage,
+    pub publishing_id: Option<u64>,
+    pub message: AmpqMessage,
 }
 
 unsafe impl Send for Message {}

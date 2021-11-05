@@ -28,8 +28,8 @@ use crate::{message::Message, ResponseCode};
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct PublishedMessage {
-    pub(crate) publishing_id: u64,
-    pub(crate) message: Message,
+    pub publishing_id: u64,
+    pub message: Message,
 }
 
 impl PublishedMessage {

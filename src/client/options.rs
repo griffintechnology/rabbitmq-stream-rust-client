@@ -1,12 +1,12 @@
 #[derive(Clone, Debug)]
 pub struct ClientOptions {
-    pub(crate) host: String,
-    pub(crate) port: u16,
-    pub(crate) user: String,
-    pub(crate) password: String,
-    pub(crate) v_host: String,
-    pub(crate) heartbeat: u32,
-    pub(crate) max_frame_size: u32,
+    pub host: String,
+    pub port: u16,
+    pub user: String,
+    pub password: String,
+    pub v_host: String,
+    pub heartbeat: u32,
+    pub max_frame_size: u32,
 }
 
 impl Default for ClientOptions {

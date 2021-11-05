@@ -70,8 +70,8 @@ impl Command for PeerPropertiesCommand {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct PeerPropertiesResponse {
-    pub(crate) correlation_id: u32,
-    pub(crate) code: ResponseCode,
+    pub correlation_id: u32,
+    pub code: ResponseCode,
     pub server_properties: HashMap<String, String>,
 }
 

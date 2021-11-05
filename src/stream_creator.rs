@@ -4,7 +4,7 @@ use crate::{byte_capacity::ByteCapacity, environment::Environment, error::Stream
 
 /// Builder for creating a RabbitMQ stream
 pub struct StreamCreator {
-    pub(crate) env: Environment,
+    pub env: Environment,
     pub options: HashMap<String, String>,
 }
 

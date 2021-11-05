@@ -16,9 +16,9 @@ use crate::error::ClientError;
 use super::{channel::ChannelReceiver, handler::MessageHandler};
 
 #[derive(Clone)]
-pub(crate) struct Dispatcher<T>(DispatcherState<T>);
+pub struct Dispatcher<T>(DispatcherState<T>);
 
-pub(crate) struct DispatcherState<T> {
+pub struct DispatcherState<T> {
     requests: Arc<Mutex<HashMap<u32, Sender<Response>>>>,
     correlation_id: Arc<AtomicU32>,
     handler: Arc<RwLock<Option<T>>>,

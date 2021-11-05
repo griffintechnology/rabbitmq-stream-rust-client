@@ -49,8 +49,8 @@ impl ConsumerInternal {
 
 /// Builder for [`Consumer`]
 pub struct ConsumerBuilder {
-    pub(crate) environment: Environment,
-    pub(crate) offset_specification: OffsetSpecification,
+    pub environment: Environment,
+    pub offset_specification: OffsetSpecification,
 }
 
 impl ConsumerBuilder {

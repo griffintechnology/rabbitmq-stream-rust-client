@@ -85,7 +85,7 @@ impl Decoder for QueryOffsetRequest {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(PartialEq, Debug)]
 pub struct QueryOffsetResponse {
-    pub(crate) correlation_id: u32,
+    pub correlation_id: u32,
     response_code: ResponseCode,
     offset: u64,
 }

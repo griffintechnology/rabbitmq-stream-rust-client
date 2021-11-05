@@ -7,7 +7,7 @@ use rabbitmq_stream_protocol::codec::{Decoder, Encoder};
 use crate::error::ClientError;
 
 #[derive(Debug)]
-pub(crate) struct RabbitMqStreamCodec {}
+pub struct RabbitMqStreamCodec {}
 
 impl TokioDecoder for RabbitMqStreamCodec {
     type Item = Response;

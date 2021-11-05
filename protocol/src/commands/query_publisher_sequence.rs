@@ -85,7 +85,7 @@ impl Decoder for QueryPublisherRequest {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(PartialEq, Debug)]
 pub struct QueryPublisherResponse {
-    pub(crate) correlation_id: u32,
+    pub correlation_id: u32,
     response_code: ResponseCode,
     sequence: u64,
 }

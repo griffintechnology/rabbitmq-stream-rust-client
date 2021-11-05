@@ -50,8 +50,8 @@ impl Command for OpenCommand {
 #[cfg_attr(test, derive(fake::Dummy))]
 #[derive(Debug, PartialEq)]
 pub struct OpenResponse {
-    pub(crate) correlation_id: u32,
-    pub(crate) code: ResponseCode,
+    pub correlation_id: u32,
+    pub code: ResponseCode,
     pub connection_properties: HashMap<String, String>,
 }
 

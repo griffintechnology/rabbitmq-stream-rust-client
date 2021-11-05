@@ -34,7 +34,7 @@ mod tests {
 
     use crate::codec::{Decoder, Encoder};
     use fake::{Dummy, Fake, Faker};
-    pub(crate) fn command_encode_decode_test<T>()
+    pub fn command_encode_decode_test<T>()
     where
         T: Dummy<Faker> + Encoder + Decoder + Debug + PartialEq,
     {

@@ -39,8 +39,8 @@ pub struct Producer(Arc<ProducerInternal>);
 
 /// Builder for [`Producer`]
 pub struct ProducerBuilder {
-    pub(crate) environment: Environment,
-    pub(crate) name: Option<String>,
+    pub environment: Environment,
+    pub name: Option<String>,
 }
 
 impl ProducerBuilder {

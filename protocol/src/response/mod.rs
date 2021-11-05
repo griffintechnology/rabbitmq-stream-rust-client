@@ -45,7 +45,7 @@ pub enum ResponseCode {
 #[derive(Debug, PartialEq)]
 pub struct Response {
     header: Header,
-    pub(crate) kind: ResponseKind,
+    pub kind: ResponseKind,
 }
 
 #[derive(Debug, PartialEq)]
