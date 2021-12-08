@@ -95,7 +95,7 @@ handle.close().await?;
 #### Compiling
 
 ```bash
-git clone https://github.com/korsmakolnikov/rabbitmq-stream-rust-client.git .
+git clone https://github.com/rabbitmq/rabbitmq-stream-rust-client .
 make build
 ```
 
@@ -104,4 +104,11 @@ make build
 ```bash
 make rabbitmq-server
 make test
+```
+
+#### Running Benchmarks
+
+```bash
+make rabbitmq-server
+make run-benchmark
 ```
