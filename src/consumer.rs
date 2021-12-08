@@ -163,6 +163,7 @@ impl ConsumerHandle {
                 let response = self.0.client.unsubscribe(self.0.subscription_id).await?;
                 if response.is_ok() {
                     self.0.waker.wake();
+                    self.0.client.close().await.expect("close client failed");
                     Ok(())
                 } else {
                     Err(ConsumerCloseError::Close {
@@ -224,9 +225,9 @@ impl MessageHandler for ConsumerMessageHandler {
 }
 #[derive(Debug)]
 pub struct Delivery {
-    subscription_id: u8,
-    message: Message,
-    offset: u64,
+    pub subscription_id: u8,
+    pub message: Message,
+    pub offset: u64,
 }
 
 impl Delivery {
