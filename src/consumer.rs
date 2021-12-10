@@ -220,8 +220,8 @@ impl MessageHandler for ConsumerMessageHandler {
             }
             None => {
                 println!("Closing consumer");
-                self.0.closed.store(true, Relaxed);
-                self.0.waker.wake();
+                // self.0.closed.store(true, Relaxed);
+                // self.0.waker.wake();
             }
         }
         Ok(())
