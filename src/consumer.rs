@@ -210,7 +210,12 @@ impl MessageHandler for ConsumerMessageHandler {
                     // TODO handle credit fail
                     let _ = self.0.client.credit(self.0.subscription_id, 1).await;
                     self.0.metrics_collector.consume(len as u64).await;
-                }else{
+                }else if  let ResponseKind::Heartbeat(heartbeat) = kind  {
+                    // credit on heartbeat
+                    println!("credit on heartbeat");
+                    let _ = self.0.client.credit(self.0.subscription_id, 1).await;
+                }
+                else{
                     println!("Response kind {:?}", kind);
                 }
             }
@@ -220,8 +225,8 @@ impl MessageHandler for ConsumerMessageHandler {
             }
             None => {
                 println!("Closing consumer");
-                // self.0.closed.store(true, Relaxed);
-                // self.0.waker.wake();
+                self.0.closed.store(true, Relaxed);
+                self.0.waker.wake();
             }
         }
         Ok(())
