@@ -212,7 +212,6 @@ impl MessageHandler for ConsumerMessageHandler {
                     self.0.metrics_collector.consume(len as u64).await;
                 }else if  let ResponseKind::Heartbeat(_) = kind  {
                     // credit on heartbeat
-                    println!("credit on heartbeat");
                     let _ = self.0.client.credit(self.0.subscription_id, 1).await;
                 }
                 else{
