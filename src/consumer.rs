@@ -188,7 +188,8 @@ impl MessageHandler for ConsumerMessageHandler {
     async fn handle_message(&self, item: MessageResult) -> crate::RabbitMQStreamResult<()> {
         match item {
             Some(Ok(response)) => {
-                if let ResponseKind::Deliver(delivery) = response.kind() {
+                let kind =  response.kind();
+                if let ResponseKind::Deliver(delivery) = kind {
                     let mut offset = delivery.chunk_first_offset;
 
                     let len = delivery.messages.len();
@@ -209,13 +210,20 @@ impl MessageHandler for ConsumerMessageHandler {
                     // TODO handle credit fail
                     let _ = self.0.client.credit(self.0.subscription_id, 1).await;
                     self.0.metrics_collector.consume(len as u64).await;
+                }else if  let ResponseKind::Heartbeat(_) = kind  {
+                    // credit on heartbeat
+                    println!("credit on heartbeat");
+                    let _ = self.0.client.credit(self.0.subscription_id, 1).await;
+                }
+                else{
+                    println!("Response kind {:?}", kind);
                 }
             }
             Some(Err(err)) => {
                 let _ = self.0.sender.send(Err(err.into())).await;
             }
             None => {
-                trace!("Closing consumer");
+                println!("Closing consumer");
                 self.0.closed.store(true, Relaxed);
                 self.0.waker.wake();
             }
